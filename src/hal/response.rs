@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::BTreeMap,
     ops::{Deref, DerefMut},
 };
 
@@ -18,10 +18,10 @@ pub struct HalRespondable<T>
 where
     T: Serialize,
 {
-    payload: T,
+    payload:     T,
     status_code: StatusCode,
-    headers: Headers,
-    links: HashMap<String, Links>,
+    headers:     Headers,
+    links:       BTreeMap<String, Links>,
 }
 
 /// The actual JSON payload of a HAL resource.
@@ -31,7 +31,7 @@ where
     T: Serialize,
 {
     #[serde(rename = "_links")]
-    pub links: HashMap<String, Links>,
+    pub links:   BTreeMap<String, Links>,
     #[serde(flatten)]
     pub payload: T,
 }
@@ -46,16 +46,13 @@ where
     /// - `payload` - The payload of the response
     pub fn new(payload: T) -> Self {
         let mut headers = Headers::default();
-        headers.append(
-            header::CONTENT_TYPE,
-            HeaderValue::from_static("application/hal+json"),
-        );
+        headers.append(header::CONTENT_TYPE, HeaderValue::from_static("application/hal+json"));
 
         Self {
             payload,
             status_code: StatusCode::OK,
             headers,
-            links: HashMap::new(),
+            links: BTreeMap::new(),
         }
     }
 
@@ -125,7 +122,7 @@ where
     fn body(self) -> Self::Body {
         HalPayload {
             payload: self.payload,
-            links: self.links,
+            links:   self.links,
         }
     }
 
